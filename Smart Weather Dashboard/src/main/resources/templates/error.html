@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Smart Weather Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🌤️ Smart Weather Dashboard</h1>
+        </header>
+
+        <!-- Error Content -->
+        <main class="main-content">
+            <section class="error-section">
+                <div class="card error-card">
+                    <div class="error-header">
+                        <h2 th:text="${errorTitle} ?: 'Error'"></h2>
+                    </div>
+
+                    <div class="error-message">
+                        <p th:text="${errorMessage}"></p>
+                    </div>
+
+                    <div class="error-code" th:if="${errorCode}">
+                        <span>Error Code: </span>
+                        <span th:text="${errorCode}"></span>
+                    </div>
+
+                    <div class="error-actions">
+                        <a href="/" class="btn btn-primary">← Back to Home</a>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2026 Smart Weather Dashboard | Powered by OpenWeatherMap API</p>
+        </footer>
+    </div>
+</body>
+</html>
+

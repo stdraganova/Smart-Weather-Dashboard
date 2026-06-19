@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Weather Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🌤️</text></svg>">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🌤️ Smart Weather Dashboard</h1>
+            <p>Get accurate weather information in seconds</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Search Section -->
+            <section class="search-section">
+                <form th:action="@{/weather}" method="get" class="search-form">
+                    <div class="form-group">
+                        <input type="text" name="city" id="city" class="search-input"
+                               placeholder="Enter city name..." required>
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                    <input type="hidden" name="unit" th:value="${unit}">
+                </form>
+
+                <!-- Unit Toggle -->
+                <div class="unit-toggle">
+                    <span th:if="${weather}">
+                        <form th:action="@{/toggle-unit}" method="get" style="display: inline;">
+                            <input type="hidden" name="city" th:value="${weather.cityName}">
+                            <input type="hidden" name="unit" th:value="${unit}">
+                            <button type="submit" class="btn btn-secondary">
+                                Switch to <span th:text="${unit == 'metric' ? '°F' : '°C'}"></span>
+                            </button>
+                        </form>
+                        <form th:action="@{/refresh}" method="get" style="display: inline;">
+                            <input type="hidden" name="city" th:value="${weather.cityName}">
+                            <input type="hidden" name="unit" th:value="${unit}">
+                            <button type="submit" class="btn btn-secondary">🔄 Refresh</button>
+                        </form>
+                    </span>
+                </div>
+
+                <!-- Error Message -->
+                <div th:if="${errorMessage}" class="alert alert-error">
+                    <strong>Error:</strong> <span th:text="${errorMessage}"></span>
+                </div>
+            </section>
+
+            <!-- Current Weather Section -->
+            <section th:if="${weather}" class="weather-section">
+                <div class="card weather-card">
+                    <div class="weather-header">
+                        <h2>
+                            <span th:text="${weather.cityName}"></span>,
+                            <span th:text="${weather.country}"></span>
+                        </h2>
+                        <p class="weather-description" th:text="${weather.weatherDescription}"></p>
+                    </div>
+
+                    <div class="weather-main">
+                        <div class="temperature-display">
+                            <span class="temp-value" th:text="${#numbers.formatDecimal(weather.temperature, 1, 1)}"></span>
+                            <span class="temp-unit" th:text="${weather.temperatureUnit}"></span>
+                        </div>
+                        <div class="weather-condition" th:text="${weather.weatherMain}"></div>
+                    </div>
+
+                    <div class="weather-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Feels Like</span>
+                            <span class="detail-value" th:text="${#numbers.formatDecimal(weather.feelsLike, 1, 1)} + '°' + ${weather.temperatureUnit}"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Min/Max</span>
+                            <span class="detail-value" th:text="${#numbers.formatDecimal(weather.tempMin, 1, 1)} + '°/' + ${#numbers.formatDecimal(weather.tempMax, 1, 1)} + '°'"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Humidity</span>
+                            <span class="detail-value" th:text="${weather.humidity} + '%'"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Pressure</span>
+                            <span class="detail-value" th:text="${weather.pressure} + ' hPa'"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Wind Speed</span>
+                            <span class="detail-value" th:text="${#numbers.formatDecimal(weather.windSpeed, 1, 1)} + ' m/s'"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Cloudiness</span>
+                            <span class="detail-value" th:text="${weather.cloudiness} + '%'"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5-Day Forecast Section -->
+            <section th:if="${forecast != null and !forecast.isEmpty()}" class="forecast-section">
+                <h3>5-Day Forecast</h3>
+                <div class="forecast-grid">
+                    <div th:each="day : ${forecast}" class="card forecast-card">
+                        <div class="forecast-date" th:text="${day.date}"></div>
+                        <div class="forecast-condition" th:text="${day.weatherMain}"></div>
+                        <div class="forecast-temps">
+                            <span class="temp-min" th:text="${#numbers.formatDecimal(day.tempMin, 1, 1)} + '°'"></span>
+                            <span class="temp-max" th:text="${#numbers.formatDecimal(day.tempMax, 1, 1)} + '°'"></span>
+                        </div>
+                        <div class="forecast-details">
+                            <span th:text="'💧 ' + ${day.humidity} + '%'"></span>
+                            <span th:text="'💨 ' + ${#numbers.formatDecimal(day.windSpeed, 1, 1)}"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+                <!-- Recent Searches Section -->
+            <section th:if="${recentSearches != null and !recentSearches.isEmpty()}" class="recent-searches-section">
+                <h3>Recent Searches</h3>
+                <div class="recent-searches-list">
+                    <a th:each="city : ${recentSearches}" th:href="@{/weather(city=${city}, unit=${unit})}"
+                       class="search-tag" th:text="${city}"></a>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2026 Smart Weather Dashboard | Powered by OpenWeatherMap API</p>
+        </footer>
+    </div>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>
+
